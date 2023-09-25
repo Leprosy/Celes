@@ -113,6 +113,10 @@ function App(): JSX.Element {
           <View style={styles.headerButtonCol}>
             <Press
               onPress={async () => {
+                if (history[history.length - 1] === url) {
+                  return;
+                }
+
                 executeGo(url);
                 pushHistory(url);
               }}
