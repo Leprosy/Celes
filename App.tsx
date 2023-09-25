@@ -13,7 +13,6 @@ import {
   ScrollView,
   StatusBar,
   StyleSheet,
-  Text,
   TextInput,
   useColorScheme,
   View,
@@ -28,11 +27,10 @@ import {contentExtract} from './src/lib/Extractor';
 
 const getContent = async (url: string) => {
   try {
-    const txt = await URLFetch(url);
-    const content = contentExtract(txt);
-    return content;
+    const {txt, finalUrl} = await URLFetch(url);
+    return {txt: contentExtract(txt), finalUrl};
   } catch (err) {
-    return getErrorTpl(err as string);
+    return {txt: getErrorTpl(err as string), finalUrl: url};
   }
 };
 
@@ -49,8 +47,9 @@ function App(): JSX.Element {
   const executeGo = async (newUrl: string) => {
     // TODO if error fetching URL, don't add to the history
     setContent(getLoadingTpl()); // TODO check HTTPS prefix
-    const txt = await getContent(newUrl);
+    const {txt, finalUrl} = await getContent(newUrl);
     setContent(txt);
+    setUrl(finalUrl);
   };
 
   const pushHistory = (newUrl: string) => {
@@ -133,8 +132,6 @@ function App(): JSX.Element {
             <Press onPress={() => handleBack()} title="<" />
           </View>
         </View>
-
-        <Text>h:{history.join(' || ')}</Text>
 
         <WebView
           source={{html: content, baseUrl: './src/assets/img/'}}
