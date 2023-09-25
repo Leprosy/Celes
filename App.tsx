@@ -5,7 +5,7 @@
  * @format
  */
 
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Alert,
   BackHandler,
@@ -19,12 +19,12 @@ import {
   View,
 } from 'react-native';
 
-import {Colors} from 'react-native/Libraries/NewAppScreen';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 import WebView from 'react-native-webview';
-import {getErrorTpl, getLoadingTpl, getStartTpl} from './src/lib/html';
-import {Press} from './src/components/Press';
-import {URLFetch} from './src/lib/URLFetch';
-import {contentExtract} from './src/lib/Extractor';
+import { getErrorTpl, getLoadingTpl, getStartTpl } from './src/lib/html';
+import { Press } from './src/components/Press';
+import { URLFetch } from './src/lib/URLFetch';
+import { contentExtract } from './src/lib/Extractor';
 
 const getContent = async (url: string) => {
   try {
@@ -85,7 +85,7 @@ function App(): JSX.Element {
 
     const backHandler = BackHandler.addEventListener(
       'hardwareBackPress',
-      handleBack,
+      handleBack
     );
 
     return () => backHandler.remove();
@@ -99,7 +99,8 @@ function App(): JSX.Element {
       />
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
+        style={backgroundStyle}
+      >
         <View style={styles.headerContainer}>
           <View style={styles.headerTextInputCol}>
             <TextInput
@@ -107,7 +108,7 @@ function App(): JSX.Element {
               style={styles.textInput}
               inputMode="url"
               placeholder="Enter a URL..."
-              onChangeText={txt => setUrl(txt)}
+              onChangeText={(txt) => setUrl(txt)}
             />
           </View>
           <View style={styles.headerButtonCol}>
@@ -132,9 +133,9 @@ function App(): JSX.Element {
         </View>
         <Text>h:{history}</Text>
         <WebView
-          source={{html: content, baseUrl: './src/assets/img/'}}
+          source={{ html: content, baseUrl: './src/assets/img/' }}
           style={styles.webView}
-          onMessage={event => {
+          onMessage={(event) => {
             const aUrl = event.nativeEvent.data;
             setUrl(aUrl);
             executeGo(aUrl);
