@@ -46,7 +46,7 @@ function App(): JSX.Element {
 
   const executeGo = async (newUrl: string) => {
     // TODO if error fetching URL, don't add to the history
-    setContent(getLoadingTpl()); // TODO check HTTPS prefix
+    setContent(getLoadingTpl());
     const {txt, finalUrl} = await getContent(newUrl);
     setContent(txt);
     setUrl(finalUrl);
@@ -88,7 +88,7 @@ function App(): JSX.Element {
     );
 
     return () => backHandler.remove();
-  });
+  }, [history]);
 
   return (
     <SafeAreaView style={backgroundStyle}>
