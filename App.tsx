@@ -115,12 +115,11 @@ function App(): JSX.Element {
           <View style={styles.headerButtonCol}>
             <Press
               onPress={async () => {
-                if (history[history.length - 1] === url) {
-                  return;
-                }
-
                 executeGo(url);
-                pushHistory(url);
+
+                if (history[history.length - 1] !== url) {
+                  pushHistory(url);
+                }
               }}
               title="Go"
             />
@@ -134,6 +133,8 @@ function App(): JSX.Element {
             <Press onPress={() => handleBack()} title="<" />
           </View>
         </View>
+
+        <Text>h:{history.join(' || ')}</Text>
 
         <WebView
           source={{html: content, baseUrl: './src/assets/img/'}}
