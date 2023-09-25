@@ -11,7 +11,7 @@ export const contentExtract = (html: string) => {
 
     document
       .querySelectorAll('h1, h2, h3, p, p ul, p+ul, img, a')
-      .forEach(elem => {
+      .forEach((elem: any) => {
         const tagName = elem.tagName.toLowerCase();
         let adding = '';
 
