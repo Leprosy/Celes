@@ -97,6 +97,7 @@ function App(): JSX.Element {
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         backgroundColor={backgroundStyle.backgroundColor}
       />
+
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         style={backgroundStyle}>
@@ -110,6 +111,7 @@ function App(): JSX.Element {
               onChangeText={txt => setUrl(txt)}
             />
           </View>
+
           <View style={styles.headerButtonCol}>
             <Press
               onPress={async () => {
@@ -123,14 +125,16 @@ function App(): JSX.Element {
               title="Go"
             />
           </View>
+
           <View style={styles.headerButtonCol}>
             <Press onPress={() => setUrl('')} title="X" />
           </View>
+
           <View style={styles.headerButtonCol}>
             <Press onPress={() => handleBack()} title="<" />
           </View>
         </View>
-        <Text>h:{history}</Text>
+
         <WebView
           source={{html: content, baseUrl: './src/assets/img/'}}
           style={styles.webView}
