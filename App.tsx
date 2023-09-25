@@ -106,7 +106,7 @@ function App(): JSX.Element {
               value={url}
               style={styles.textInput}
               inputMode="url"
-              placeholder="Enter URL..."
+              placeholder="Enter a URL..."
               onChangeText={txt => setUrl(txt)}
             />
           </View>
