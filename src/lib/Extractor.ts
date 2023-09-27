@@ -1,48 +1,86 @@
 import {parseHTML} from 'linkedom';
 import {htmlize} from './html';
 
-//const isHidden = el => el.offsetParent === null;
-const cleanStyle = (elem: string) => elem.replace(/style="[^\"]*"/, '');
+const keepAttributes = ['href', 'id', 'src'];
+const contentTags = [
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
+  'p',
+  'ul',
+  'a',
+  'img',
+  'table',
+  'span',
+];
 
-export const contentExtract = (html: string) => {
+const getUrl = (path: string, base: string) => {
+  if (!/^[https?:\/\/|data:]/.test(path)) {
+    return `${base}/${path}`;
+  }
+
+  return path;
+};
+
+const cleanNode = (elem: any) => {
+  const attrs = elem.getAttributeNames();
+
+  attrs.forEach((attr: string) => {
+    if (keepAttributes.indexOf(attr) < 0) {
+      elem.removeAttribute(attr);
+    }
+  });
+
+  if (elem.tagName === 'IMG') {
+    console.log('IMG', elem.getAttribute('src'));
+    elem.setAttribute('style', 'max-width: 100%');
+  }
+
+  if (elem.tagName === 'A') {
+    const href = elem.getAttribute('href');
+    elem.setAttribute('href', '#');
+    elem.setAttribute(
+      'onClick',
+      'window.ReactNativeWebView.postMessage("' + href + '")',
+    );
+  }
+
+  elem.children.forEach(child => cleanNode(child));
+};
+
+const checkNode = (root: any) => {
+  //TODO: annotate root and elem types(using any for now)
+
+  // Text node
+  if (root.tagName === undefined) {
+    return ''; // TODO: We want to skip this?
+  }
+
+  // Content node
+  if (contentTags.indexOf(root.tagName.toLowerCase()) >= 0) {
+    // console.log('Content', root.tagName, root.outerHTML);
+    cleanNode(root);
+    return root.outerHTML; // TODO: cleanup. Find a way to filter empty innerText without affecting IMGs
+  }
+
+  // Keep looking
+  let content = '';
+
+  root.childNodes.forEach((elem: any) => {
+    content += checkNode(elem);
+  });
+
+  return content;
+};
+
+export const contentExtract = (html: string, url: string) => {
   try {
     const {document} = parseHTML(html);
-    let content = '';
-
-    document
-      .querySelectorAll('h1, h2, h3, p, p ul, p+ul, img')
-      .forEach((elem: any) => {
-        const tagName = elem.tagName.toLowerCase();
-        let adding = '';
-
-        // TODO: text elements sometimes have innerTXT blank
-        switch (tagName) {
-          case 'h1':
-          case 'h2':
-          case 'h3':
-          case 'p':
-            adding = `<${tagName}>${cleanStyle(elem.innerHTML)}</${tagName}>`;
-            break;
-          case 'img':
-            adding = `<img src="${elem.src}" style="max-width: 100%" />`;
-            break;
-          case 'ul':
-            adding = `<${tagName}>${cleanStyle(elem.innerHTML)}</${tagName}>`;
-            break;
-          //TODO: we need a heavy treatment for A HREFS
-          case 'a':
-            adding = `<p><a href="#" onClick="window.ReactNativeWebView.postMessage('${elem.href}')">${elem.innerText}</a></p>`;
-            break;
-        }
-
-        console.log('New line', {
-          tagName,
-          adding: adding,
-        });
-
-        content += '\n' + adding;
-      });
-
+    let content = checkNode(document.body);
+    console.log('FInal content', htmlize(content));
     return htmlize(content);
   } catch (err) {
     console.error('Extractor: error', err);
