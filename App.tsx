@@ -28,7 +28,7 @@ import {contentExtract} from './src/lib/Extractor';
 const getContent = async (url: string) => {
   try {
     const {txt, finalUrl} = await URLFetch(url);
-    return {txt: contentExtract(txt), finalUrl};
+    return {txt: contentExtract(txt, finalUrl), finalUrl};
   } catch (err) {
     return {txt: getErrorTpl(err as string), finalUrl: url};
   }
@@ -50,10 +50,10 @@ function App(): JSX.Element {
     const {txt, finalUrl} = await getContent(newUrl);
     setContent(txt);
     setUrl(finalUrl);
-  };
 
-  const pushHistory = (newUrl: string) => {
-    setHistory([...history, newUrl]);
+    if (history[history.length - 1] !== finalUrl) {
+      setHistory([...history, finalUrl]);
+    }
   };
 
   const popHistory = () => {
@@ -68,8 +68,6 @@ function App(): JSX.Element {
   };
 
   const handleBack = () => {
-    console.log('handleBack: history', history);
-
     if (history.length < 2) {
       Alert.alert('OAW', 'End of history');
     } else {
@@ -115,10 +113,6 @@ function App(): JSX.Element {
             <Press
               onPress={async () => {
                 executeGo(url);
-
-                if (history[history.length - 1] !== url) {
-                  pushHistory(url);
-                }
               }}
               title="Go"
             />
@@ -140,7 +134,6 @@ function App(): JSX.Element {
             const aUrl = event.nativeEvent.data;
             setUrl(aUrl);
             executeGo(aUrl);
-            pushHistory(aUrl);
           }}
         />
       </ScrollView>
