@@ -1,5 +1,6 @@
 import {parseHTML} from 'linkedom';
 import {htmlize} from './html';
+import {removeEnd} from './helpers';
 
 const keepAttributes = ['href', 'id', 'src'];
 const contentTags = [
@@ -18,14 +19,15 @@ const contentTags = [
 ];
 
 const getUrl = (path: string, base: string) => {
-  if (!/^[https?:\/\/|data:]/.test(path)) {
-    return `${base}/${path}`;
+  if (!/^(data|https?):\/\//.test(path)) {
+    path = `${removeEnd(base, '/')}/${removeEnd(path, '/')}`;
   }
 
+  path = removeEnd(path, '/');
   return path;
 };
 
-const cleanNode = (elem: any) => {
+const cleanNode = (elem: any, baseUrl: string) => {
   const attrs = elem.getAttributeNames();
 
   attrs.forEach((attr: string) => {
@@ -36,11 +38,16 @@ const cleanNode = (elem: any) => {
 
   if (elem.tagName === 'IMG') {
     console.log('IMG', elem.getAttribute('src'));
+    const src = getUrl(elem.getAttribute('src'), baseUrl);
+    console.log('IMG NOW', src);
     elem.setAttribute('style', 'max-width: 100%');
+    elem.setAttribute('src', src);
   }
 
   if (elem.tagName === 'A') {
-    const href = elem.getAttribute('href');
+    console.log('A', elem.getAttribute('href'));
+    const href = getUrl(elem.getAttribute('href'), baseUrl);
+    console.log('A NOW', href);
     elem.setAttribute('href', '#');
     elem.setAttribute(
       'onClick',
@@ -48,10 +55,10 @@ const cleanNode = (elem: any) => {
     );
   }
 
-  elem.children.forEach(child => cleanNode(child));
+  elem.children.forEach(child => cleanNode(child, baseUrl));
 };
 
-const checkNode = (root: any) => {
+const checkNode = (root: any, baseUrl: string) => {
   //TODO: annotate root and elem types(using any for now)
 
   // Text node
@@ -62,7 +69,7 @@ const checkNode = (root: any) => {
   // Content node
   if (contentTags.indexOf(root.tagName.toLowerCase()) >= 0) {
     // console.log('Content', root.tagName, root.outerHTML);
-    cleanNode(root);
+    cleanNode(root, baseUrl);
     return root.outerHTML; // TODO: cleanup. Find a way to filter empty innerText without affecting IMGs
   }
 
@@ -70,7 +77,7 @@ const checkNode = (root: any) => {
   let content = '';
 
   root.childNodes.forEach((elem: any) => {
-    content += checkNode(elem);
+    content += checkNode(elem, baseUrl);
   });
 
   return content;
@@ -79,7 +86,7 @@ const checkNode = (root: any) => {
 export const contentExtract = (html: string, url: string) => {
   try {
     const {document} = parseHTML(html);
-    let content = checkNode(document.body);
+    let content = checkNode(document.body, url);
     console.log('FInal content', htmlize(content));
     return htmlize(content);
   } catch (err) {
