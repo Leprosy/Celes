@@ -1,6 +1,7 @@
 import {parseHTML} from 'linkedom';
 import {htmlize} from './html';
 import {removeEnd} from './helpers';
+import {Element} from 'linkedom/types/interface/element';
 
 const keepAttributes = ['href', 'id', 'src'];
 const contentTags = [
@@ -27,7 +28,7 @@ const getUrl = (path: string, base: string) => {
   return path;
 };
 
-const cleanNode = (elem: any, baseUrl: string) => {
+const cleanNode = (elem: Element, baseUrl: string) => {
   const attrs = elem.getAttributeNames();
 
   attrs.forEach((attr: string) => {
@@ -51,16 +52,14 @@ const cleanNode = (elem: any, baseUrl: string) => {
     elem.setAttribute('href', '#');
     elem.setAttribute(
       'onClick',
-      'window.ReactNativeWebView.postMessage("' + href + '")',
+      `window.ReactNativeWebView.postMessage('${href}')`,
     );
   }
 
   elem.children.forEach(child => cleanNode(child, baseUrl));
 };
 
-const checkNode = (root: any, baseUrl: string) => {
-  //TODO: annotate root and elem types(using any for now)
-
+const checkNode = (root: Element, baseUrl: string) => {
   // Text node
   if (root.tagName === undefined) {
     return ''; // TODO: We want to skip this?
@@ -76,7 +75,7 @@ const checkNode = (root: any, baseUrl: string) => {
   // Keep looking
   let content = '';
 
-  root.childNodes.forEach((elem: any) => {
+  root.childNodes.forEach((elem: Element) => {
     content += checkNode(elem, baseUrl);
   });
 
