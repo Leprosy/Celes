@@ -21,7 +21,9 @@ export const htmlize = (content: string) => `
 `;
 
 export const getStartTpl = () => {
-  return htmlize("<H1>Enter a URL</H1><img src='./celes.png' />");
+  return htmlize(`<H1>Hello there!</h1>
+    <h3>This is Celestino, an experimental article reader. Enter a URL or a search string to start!</h3>
+    <img src="https://l3pro.netlify.app/html_test/celes.jpeg" width="200" style="display:block;margin-left:auto;margin-right:auto" />`);
 };
 
 export const getLoadingTpl = () => {

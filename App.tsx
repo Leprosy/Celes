@@ -112,7 +112,11 @@ function App(): JSX.Element {
           <View style={styles.headerButtonCol}>
             <Press
               onPress={async () => {
-                executeGo(url);
+                if (url !== '') {
+                  executeGo(url);
+                } else {
+                  Alert.alert('Error', 'RLY? No URL?');
+                }
               }}
               title="Go"
             />
