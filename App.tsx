@@ -44,14 +44,14 @@ function App(): JSX.Element {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
 
-  const executeGo = async (newUrl: string) => {
+  const executeGo = async (newUrl: string, pushToHistory = true) => {
     // TODO if error fetching URL, don't add to the history
     setContent(getLoadingTpl());
     const {txt, finalUrl} = await getContent(newUrl);
     setContent(txt);
     setUrl(finalUrl);
 
-    if (history[history.length - 1] !== finalUrl) {
+    if (pushToHistory && history[history.length - 1] !== finalUrl) {
       setHistory([...history, finalUrl]);
     }
   };
@@ -63,7 +63,7 @@ function App(): JSX.Element {
 
     const newUrl = history[history.length - 2];
     setHistory(history.slice(0, history.length - 1));
-    executeGo(newUrl);
+    executeGo(newUrl, false);
     setUrl(newUrl);
   };
 
