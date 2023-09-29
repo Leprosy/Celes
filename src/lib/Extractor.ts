@@ -4,6 +4,8 @@ import {removeEnd, removeStart} from './helpers';
 import {Element} from 'linkedom/types/interface/element';
 
 const keepAttributes = ['href', 'id', 'src'];
+const forbiddenTags = ['svg', 'script', 'nav'];
+const allowedEmptyTags = ['img'];
 const contentTags = [
   'h1',
   'h2',
@@ -38,6 +40,18 @@ const getUrl = (path: string, base: string) => {
 };
 
 const cleanNode = (elem: Element, baseUrl: string) => {
+  // TODO: https://kotaku.com/cyberpunk-2077-update-2-0-patch-notes-skills-cyberware-1850861309 keeps getting empty <spans>
+  if (
+    elem.innerHTML === '' &&
+    allowedEmptyTags.indexOf(elem.tagName.toLowerCase()) < 0
+  ) {
+    elem.remove();
+  }
+
+  if (forbiddenTags.indexOf(elem.tagName.toLowerCase()) >= 0) {
+    elem.remove();
+  }
+
   const attrs = elem.getAttributeNames();
 
   attrs.forEach((attr: string) => {
