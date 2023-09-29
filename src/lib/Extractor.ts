@@ -1,6 +1,6 @@
 import {parseHTML} from 'linkedom';
 import {htmlize} from './html';
-import {removeEnd} from './helpers';
+import {removeEnd, removeStart} from './helpers';
 import {Element} from 'linkedom/types/interface/element';
 
 const keepAttributes = ['href', 'id', 'src'];
@@ -19,9 +19,18 @@ const contentTags = [
   'span',
 ];
 
+const getBaseUrl = (path: string) => {
+  let domain: any = path.replace(/^https?:\/\//, '').split('/');
+  domain.pop();
+  domain = domain.join('/');
+
+  console.log('DOMAIN IS', path, `https://${domain}`);
+  return `https://${domain}`;
+};
+
 const getUrl = (path: string, base: string) => {
   if (!/^(data|https?):\/\//.test(path)) {
-    path = `${removeEnd(base, '/')}/${removeEnd(path, '/')}`;
+    path = `${base}/${removeStart(removeEnd(path, '/'), '/')}`;
   }
 
   path = removeEnd(path, '/');
@@ -85,7 +94,8 @@ const checkNode = (root: Element, baseUrl: string) => {
 export const contentExtract = (html: string, url: string) => {
   try {
     const {document} = parseHTML(html);
-    let content = checkNode(document.body, url);
+    const baseUrl = getBaseUrl(url);
+    let content = checkNode(document.body, baseUrl);
     console.log('FInal content', htmlize(content));
     return htmlize(content);
   } catch (err) {

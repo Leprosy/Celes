@@ -19,7 +19,10 @@ const getSecureUrl = (url: string) => {
 
 const getGoogleUrl = (url: string) => {
   url = encodeURI(url);
-  console.log('URL getting google search');
+  console.log(
+    'URL getting google search',
+    `https://www.google.com/search?q=${url}`,
+  );
   return `https://www.google.com/search?q=${url}`;
 };
 
