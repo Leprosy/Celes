@@ -41,11 +41,10 @@ const getValidUrl = (url: string) => {
 
 export const URLFetch = async (url: string) => {
   try {
-    const finalUrl = getValidUrl(url);
-    const res = await fetch(finalUrl);
+    const validlUrl = getValidUrl(url);
+    const res = await fetch(validlUrl);
+    const finalUrl = res.url;
     const txt = await res.text();
-
-    // TODO: Return the right URL after redirections or other similar events
     return {txt, finalUrl};
   } catch (err) {
     console.error('URLFetch: error', err);

@@ -7,6 +7,7 @@ export const htmlize = (content: string) => `
     <style>
     body { font-size: 16px } 
     p, li, span { line-height: 25px }
+    span, a { display: inline-block }
     li { margin-bottom: 5px }
     h1 { font-size: 22px }
     h2 { font-size: 20px }
