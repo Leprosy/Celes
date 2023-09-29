@@ -55,14 +55,17 @@ const cleanNode = (elem: Element, baseUrl: string) => {
   }
 
   if (elem.tagName === 'A') {
-    console.log('A', elem.getAttribute('href'));
-    const href = getUrl(elem.getAttribute('href'), baseUrl);
-    console.log('A NOW', href);
-    elem.setAttribute('href', '#');
-    elem.setAttribute(
-      'onClick',
-      `window.ReactNativeWebView.postMessage('${href}')`,
-    );
+    console.log('A', elem, elem.getAttribute('href'));
+
+    if (elem.getAttribute('href')) {
+      const href = getUrl(elem.getAttribute('href'), baseUrl);
+      console.log('A NOW', href);
+      elem.setAttribute('href', '#');
+      elem.setAttribute(
+        'onClick',
+        `window.ReactNativeWebView.postMessage('${href}')`,
+      );
+    }
   }
 
   elem.children.forEach(child => cleanNode(child, baseUrl));
