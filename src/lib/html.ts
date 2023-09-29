@@ -12,6 +12,8 @@ export const htmlize = (content: string) => `
     h1 { font-size: 22px }
     h2 { font-size: 20px }
     h3 { font-size: 18px }
+    th, td { padding: 5px; border: 1px solid #ddd }
+    table { border-spacing: unset }
     </style>
     <meta name="viewport" content="width=device-width">
   </head>

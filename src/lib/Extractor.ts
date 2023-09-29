@@ -23,14 +23,17 @@ const contentTags = [
 
 const getBaseUrl = (path: string) => {
   let domain: any = path.replace(/^https?:\/\//, '').split('/');
-  domain.pop();
-  domain = domain.join('/');
+  domain = domain[0];
 
   console.log('DOMAIN IS', path, `https://${domain}`);
   return `https://${domain}`;
 };
 
 const getUrl = (path: string, base: string) => {
+  if (path.startsWith('//')) {
+    path = 'https:' + path;
+  }
+
   if (!/^(data|https?):\/\//.test(path)) {
     path = `${base}/${removeStart(removeEnd(path, '/'), '/')}`;
   }
