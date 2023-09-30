@@ -11,19 +11,18 @@ import {
   BackHandler,
   SafeAreaView,
   ScrollView,
-  StatusBar,
   StyleSheet,
   TextInput,
   useColorScheme,
   View,
 } from 'react-native';
 
-import {Colors} from 'react-native/Libraries/NewAppScreen';
 import WebView from 'react-native-webview';
 import {getErrorTpl, getLoadingTpl, getStartTpl} from './src/lib/html';
 import {Press} from './src/components/Press';
 import {URLFetch} from './src/lib/URLFetch';
 import {contentExtract} from './src/lib/Extractor';
+import {Theme} from './src/lib/Theme';
 
 const getContent = async (url: string) => {
   try {
@@ -38,11 +37,8 @@ function App(): JSX.Element {
   const [url, setUrl] = useState<string>('');
   const [history, setHistory] = useState<string[]>([]);
   const [content, setContent] = useState(getStartTpl());
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
+  const isDarkTheme = useColorScheme() === 'dark';
+  const themeStyle = isDarkTheme ? Theme.dark : Theme.light;
 
   const executeGo = async (newUrl: string, pushToHistory = true) => {
     // TODO if error fetching URL, don't add to the history
@@ -89,20 +85,14 @@ function App(): JSX.Element {
   }, [history]);
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
+    <SafeAreaView style={themeStyle.mainBg}>
+      <ScrollView contentInsetAdjustmentBehavior="automatic">
         <View style={styles.headerContainer}>
           <View style={styles.headerTextInputCol}>
             <TextInput
               value={url}
-              style={styles.textInput}
+              placeholderTextColor={themeStyle.placeHolderText}
+              style={[styles.textInput, themeStyle.textInput]}
               inputMode="url"
               placeholder="Enter URL..."
               onChangeText={txt => setUrl(txt)}
@@ -159,10 +149,9 @@ const styles = StyleSheet.create({
   headerContainer: {
     flex: 1,
     flexDirection: 'row',
-    backgroundColor: '#fff',
+    padding: 5,
   },
   textInput: {
-    backgroundColor: '#eee',
     height: 40,
     paddingHorizontal: 10,
     paddingVertical: 0,
