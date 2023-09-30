@@ -137,7 +137,8 @@ function App(): JSX.Element {
 
 const styles = StyleSheet.create({
   webView: {
-    margin: 2,
+    margin: 5,
+    marginTop: 1,
     height: 600,
   },
   headerButtonCol: {
@@ -155,6 +156,7 @@ const styles = StyleSheet.create({
     height: 40,
     paddingHorizontal: 10,
     paddingVertical: 0,
+    marginRight: 2,
   },
 });
 
