@@ -19,7 +19,6 @@ export const htmlize = (content: string, isDarkTheme = false) => `
     <meta name="viewport" content="width=device-width">
   </head>
   <body>
-  <p style="color: #f00">isDark:${isDarkTheme}</p>
   ${content}
   </body>
 </html>

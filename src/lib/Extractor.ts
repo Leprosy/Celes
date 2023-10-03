@@ -19,6 +19,7 @@ const contentTags = [
   'img',
   'table',
   'span',
+  'small',
 ];
 
 const getBaseUrl = (path: string) => {
@@ -43,15 +44,18 @@ const getUrl = (path: string, base: string) => {
 };
 
 const cleanNode = (elem: Element, baseUrl: string) => {
+  console.log('CLEANING', elem.tagName, elem.outerHTML);
   // TODO: https://kotaku.com/cyberpunk-2077-update-2-0-patch-notes-skills-cyberware-1850861309 keeps getting empty <spans>
   if (
-    elem.innerHTML === '' &&
+    elem.innerText === '' && // TODO: texts like "..." should be considered empty? https://www.latercera.com/que-pasa/noticia/degradada-por-su-estudio-y-ahora-ganadora-del-nobel-la-historia-de-la-inmigrante-que-hizo-posible-la-vacuna-covid/POJSNBPGDRFSHKZH67D46RXMKQ/
     allowedEmptyTags.indexOf(elem.tagName.toLowerCase()) < 0
   ) {
+    console.log('Empty');
     elem.remove();
   }
 
   if (forbiddenTags.indexOf(elem.tagName.toLowerCase()) >= 0) {
+    console.log('Forbidden');
     elem.remove();
   }
 
@@ -65,19 +69,19 @@ const cleanNode = (elem: Element, baseUrl: string) => {
 
   if (elem.tagName === 'IMG') {
     // TODO: get correct relative URLs (l3pro.netlify.app/html_test)
-    console.log('IMG', elem.getAttribute('src'));
+    //console.log('IMG', elem.getAttribute('src'));
     const src = getUrl(elem.getAttribute('src'), baseUrl);
-    console.log('IMG NOW', src);
+    //console.log('IMG NOW', src);
     elem.setAttribute('style', 'max-width: 100%');
     elem.setAttribute('src', src);
   }
 
   if (elem.tagName === 'A') {
-    console.log('A', elem, elem.getAttribute('href'));
+    //console.log('A', elem, elem.getAttribute('href'));
 
     if (elem.getAttribute('href')) {
       const href = getUrl(elem.getAttribute('href'), baseUrl);
-      console.log('A NOW', href);
+      //console.log('A NOW', href);
       elem.setAttribute('href', '#');
       elem.setAttribute(
         'onClick',
@@ -90,16 +94,23 @@ const cleanNode = (elem: Element, baseUrl: string) => {
 };
 
 const checkNode = (root: Element, baseUrl: string) => {
-  // Text node
+  console.log('root:', root.tagName);
+
   if (root.tagName === undefined) {
     return ''; // TODO: We want to skip this?
+  }
+
+  // Forbidden node
+  if (forbiddenTags.indexOf(root.tagName.toLowerCase()) >= 0) {
+    console.log('ROOT is forbidden', root.outerHTML);
+    return '';
   }
 
   // Content node
   if (contentTags.indexOf(root.tagName.toLowerCase()) >= 0) {
     // console.log('Content', root.tagName, root.outerHTML);
     cleanNode(root, baseUrl);
-    return root.outerHTML; // TODO: cleanup. Find a way to filter empty innerText without affecting IMGs
+    return root.outerHTML;
   }
 
   // Keep looking
@@ -109,7 +120,7 @@ const checkNode = (root: Element, baseUrl: string) => {
     content += checkNode(elem, baseUrl);
   });
 
-  return content;
+  return content; // TODO: newlines after each parsed element?
 };
 
 export const contentExtract = (
