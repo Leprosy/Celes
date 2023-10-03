@@ -14,6 +14,7 @@ import {
   StyleSheet,
   TextInput,
   useColorScheme,
+  useWindowDimensions,
   View,
 } from 'react-native';
 
@@ -24,26 +25,27 @@ import {URLFetch} from './src/lib/URLFetch';
 import {contentExtract} from './src/lib/Extractor';
 import {Theme} from './src/lib/Theme';
 
-const getContent = async (url: string) => {
+const getContent = async (url: string, isDarkTheme = false) => {
   try {
     const {txt, finalUrl} = await URLFetch(url);
-    return {txt: contentExtract(txt, finalUrl), finalUrl};
+    return {txt: contentExtract(txt, finalUrl, isDarkTheme), finalUrl};
   } catch (err) {
     return {txt: getErrorTpl(err as string), finalUrl: url};
   }
 };
 
 function App(): JSX.Element {
+  const isDarkTheme = useColorScheme() === 'dark';
+  const {height} = useWindowDimensions();
   const [url, setUrl] = useState<string>('');
   const [history, setHistory] = useState<string[]>([]);
-  const [content, setContent] = useState(getStartTpl());
-  const isDarkTheme = useColorScheme() === 'dark';
+  const [content, setContent] = useState(getStartTpl(isDarkTheme));
   const themeStyle = isDarkTheme ? Theme.dark : Theme.light;
 
   const executeGo = async (newUrl: string, pushToHistory = true) => {
     // TODO if error fetching URL, don't add to the history
-    setContent(getLoadingTpl());
-    const {txt, finalUrl} = await getContent(newUrl);
+    setContent(getLoadingTpl(isDarkTheme));
+    const {txt, finalUrl} = await getContent(newUrl, isDarkTheme);
     setContent(txt);
     setUrl(finalUrl);
 
@@ -123,7 +125,7 @@ function App(): JSX.Element {
 
         <WebView
           source={{html: content, baseUrl: './src/assets/img/'}}
-          style={styles.webView}
+          style={[styles.webView, {height: height - 80}]}
           onMessage={event => {
             const aUrl = event.nativeEvent.data;
             setUrl(aUrl);
@@ -139,7 +141,6 @@ const styles = StyleSheet.create({
   webView: {
     margin: 5,
     marginTop: 1,
-    height: 600,
   },
   headerButtonCol: {
     flex: 1,

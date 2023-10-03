@@ -64,6 +64,7 @@ const cleanNode = (elem: Element, baseUrl: string) => {
   });
 
   if (elem.tagName === 'IMG') {
+    // TODO: get correct relative URLs (l3pro.netlify.app/html_test)
     console.log('IMG', elem.getAttribute('src'));
     const src = getUrl(elem.getAttribute('src'), baseUrl);
     console.log('IMG NOW', src);
@@ -111,13 +112,17 @@ const checkNode = (root: Element, baseUrl: string) => {
   return content;
 };
 
-export const contentExtract = (html: string, url: string) => {
+export const contentExtract = (
+  html: string,
+  url: string,
+  isDarkTheme = false,
+) => {
   try {
     const {document} = parseHTML(html);
     const baseUrl = getBaseUrl(url);
     let content = checkNode(document.body, baseUrl);
     console.log('FInal content', htmlize(content));
-    return htmlize(content);
+    return htmlize(content, isDarkTheme);
   } catch (err) {
     console.error('Extractor: error', err);
     throw err;
