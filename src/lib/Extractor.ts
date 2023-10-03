@@ -45,27 +45,18 @@ const getUrl = (path: string, base: string) => {
 
 const cleanNode = (elem: Element, baseUrl: string) => {
   console.log('CLEANING', elem.tagName, elem.outerHTML);
-  // TODO: https://kotaku.com/cyberpunk-2077-update-2-0-patch-notes-skills-cyberware-1850861309 keeps getting empty <spans>
-  if (
-    elem.innerText === '' && // TODO: texts like "..." should be considered empty? https://www.latercera.com/que-pasa/noticia/degradada-por-su-estudio-y-ahora-ganadora-del-nobel-la-historia-de-la-inmigrante-que-hizo-posible-la-vacuna-covid/POJSNBPGDRFSHKZH67D46RXMKQ/
-    allowedEmptyTags.indexOf(elem.tagName.toLowerCase()) < 0
-  ) {
-    console.log('Empty');
-    elem.remove();
+  // Remove unwanted attributes(most of them)
+  if (elem.tagName !== 'SVG') {
+    // TODO: There are other elems that need to keep attrs?
+    const attrs = elem.getAttributeNames();
+    attrs.forEach((attr: string) => {
+      if (keepAttributes.indexOf(attr) < 0) {
+        elem.removeAttribute(attr);
+      }
+    });
+  } else {
+    return; // TODO: SVG must be rendered with all its children. Are there other elems like this?
   }
-
-  if (forbiddenTags.indexOf(elem.tagName.toLowerCase()) >= 0) {
-    console.log('Forbidden');
-    elem.remove();
-  }
-
-  const attrs = elem.getAttributeNames();
-
-  attrs.forEach((attr: string) => {
-    if (keepAttributes.indexOf(attr) < 0) {
-      elem.removeAttribute(attr);
-    }
-  });
 
   if (elem.tagName === 'IMG') {
     // TODO: get correct relative URLs (l3pro.netlify.app/html_test)
@@ -94,21 +85,26 @@ const cleanNode = (elem: Element, baseUrl: string) => {
 };
 
 const checkNode = (root: Element, baseUrl: string) => {
-  console.log('root:', root.tagName);
-
-  if (root.tagName === undefined) {
-    return ''; // TODO: We want to skip this?
-  }
-
+  const tagName = root.tagName.toLowerCase();
+  console.log('Checking', tagName);
   // Forbidden node
-  if (forbiddenTags.indexOf(root.tagName.toLowerCase()) >= 0) {
+  if (forbiddenTags.indexOf(tagName) >= 0) {
     console.log('ROOT is forbidden', root.outerHTML);
     return '';
   }
 
+  // Empty node
+  if (
+    root.innerText === '' &&
+    root.querySelectorAll(allowedEmptyTags.join(',')).length === 0
+  ) {
+    console.log('ROOT is empty', root.outerHTML);
+    return '';
+  }
+
   // Content node
-  if (contentTags.indexOf(root.tagName.toLowerCase()) >= 0) {
-    // console.log('Content', root.tagName, root.outerHTML);
+  if (contentTags.indexOf(tagName) >= 0) {
+    console.log('ROOT is content', root.outerHTML);
     cleanNode(root, baseUrl);
     return root.outerHTML;
   }
@@ -116,7 +112,7 @@ const checkNode = (root: Element, baseUrl: string) => {
   // Keep looking
   let content = '';
 
-  root.childNodes.forEach((elem: Element) => {
+  root.children.forEach((elem: Element) => {
     content += checkNode(elem, baseUrl);
   });
 
