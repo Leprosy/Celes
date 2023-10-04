@@ -21,6 +21,7 @@ const contentTags = [
   'span',
   'small',
 ];
+const unwantedStuff = '[class*=dropdown]';
 
 const getBaseUrl = (path: string) => {
   let domain: any = path.replace(/^https?:\/\//, '').split('/');
@@ -30,6 +31,10 @@ const getBaseUrl = (path: string) => {
   return `https://${domain}`;
 };
 
+/**
+ * removing unwanted things??, like
+ * everything before logos: document.querySelectorAll('[aria-label*=logo]')
+ * everything like a dropdown document.querySelectorAll('[class*=dropdown]')
 const removeBeforeLogo = (elem: Element) => {
   let parent = elem;
 
@@ -45,7 +50,7 @@ const removeBeforeLogo = (elem: Element) => {
   }
 
   return parent;
-};
+}; */
 
 const getUrl = (path: string, base: string) => {
   if (path.startsWith('//')) {
@@ -62,6 +67,12 @@ const getUrl = (path: string, base: string) => {
 
 const cleanNode = (elem: Element, baseUrl: string) => {
   console.log('CLEANING', elem.tagName, elem.outerHTML);
+  // Remove invisible things
+  if (/display *: *none/.test(elem.getAttribute('style'))) {
+    console.log('INVISIBLE');
+    elem.remove();
+  }
+
   // Remove unwanted attributes(most of them)
   if (elem.tagName !== 'SVG') {
     // TODO: There are other elems that need to keep attrs?
@@ -82,7 +93,7 @@ const cleanNode = (elem: Element, baseUrl: string) => {
     allowedEmptyTags.indexOf(elem.tagName.toLowerCase()) < 0 &&
     elem.children.length === 0 //TODO: diff between children and childNode?
   ) {
-    console.log('OAW', {
+    console.log('EMPTY', {
       children: elem.children.length,
       childNodes: elem.childNodes.length,
     });
@@ -152,13 +163,15 @@ export const contentExtract = (
   isDarkTheme = false,
 ) => {
   try {
-    //console.log('PARSING', html);
+    console.log('PARSING', html);
+    console.log('\n\n');
     const {document} = parseHTML(html);
     const baseUrl = getBaseUrl(url);
 
     // Remove all unwanted elements
+    console.log('UNWANTED', forbiddenTags.join(',') + ',' + unwantedStuff);
     document.body
-      .querySelectorAll(forbiddenTags.join(','))
+      .querySelectorAll(forbiddenTags.join(',') + ',' + unwantedStuff)
       .forEach((node: Element) => node.remove());
 
     // Remove first UL if its the first content source
