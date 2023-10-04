@@ -3,7 +3,7 @@ import {htmlize} from './html';
 import {removeEnd, removeStart} from './helpers';
 import {Element} from 'linkedom/types/interface/element';
 
-const keepAttributes = ['href', 'id', 'src'];
+const keepAttributes = ['href', 'id', 'src', 'colspan', 'rowspan'];
 const forbiddenTags = ['script', 'nav', 'footer'];
 const allowedEmptyTags = ['img'];
 const contentTags = [
