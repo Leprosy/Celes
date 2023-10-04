@@ -4,7 +4,7 @@ import {removeEnd, removeStart} from './helpers';
 import {Element} from 'linkedom/types/interface/element';
 
 const keepAttributes = ['href', 'id', 'src'];
-const forbiddenTags = ['script', 'nav'];
+const forbiddenTags = ['script', 'nav', 'footer'];
 const allowedEmptyTags = ['img'];
 const contentTags = [
   'h1',
@@ -28,6 +28,23 @@ const getBaseUrl = (path: string) => {
 
   console.log('DOMAIN IS', path, `https://${domain}`);
   return `https://${domain}`;
+};
+
+const removeBeforeLogo = (elem: Element) => {
+  let parent = elem;
+
+  while (parent.parentElement.tagName !== 'BODY') {
+    console.log('ELEM', parent.outerHTML);
+
+    while (parent.previousElementSibling !== null) {
+      console.log('Remov', parent.previousElementSibling.outerHtml);
+      parent.previousElementSibling.remove();
+    }
+
+    parent = parent.parentElement;
+  }
+
+  return parent;
 };
 
 const getUrl = (path: string, base: string) => {
@@ -135,11 +152,23 @@ export const contentExtract = (
   isDarkTheme = false,
 ) => {
   try {
+    //console.log('PARSING', html);
     const {document} = parseHTML(html);
     const baseUrl = getBaseUrl(url);
+
+    // Remove all unwanted elements
     document.body
       .querySelectorAll(forbiddenTags.join(','))
       .forEach((node: Element) => node.remove());
+
+    // Remove first UL if its the first content source
+    const firstContent = document.querySelector(contentTags.join(','));
+    if (firstContent.tagName === 'UL') {
+      console.log('removing', firstContent);
+      firstContent.remove();
+    }
+
+    // Finally, cleanup the content
     let content = checkNode(document.body, baseUrl);
     console.log('FInal content', htmlize(content));
     return htmlize(content, isDarkTheme);
