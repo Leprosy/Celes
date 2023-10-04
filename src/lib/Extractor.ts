@@ -4,7 +4,7 @@ import {removeEnd, removeStart} from './helpers';
 import {Element} from 'linkedom/types/interface/element';
 
 const keepAttributes = ['href', 'id', 'src'];
-const forbiddenTags = ['svg', 'script', 'nav'];
+const forbiddenTags = ['script', 'nav'];
 const allowedEmptyTags = ['img'];
 const contentTags = [
   'h1',
@@ -58,6 +58,20 @@ const cleanNode = (elem: Element, baseUrl: string) => {
     return; // TODO: SVG must be rendered with all its children. Are there other elems like this?
   }
 
+  // Remove empty things
+  // TODO: removing empty things again?
+  if (
+    elem.innerText === '' &&
+    allowedEmptyTags.indexOf(elem.tagName.toLowerCase()) < 0 &&
+    elem.children.length === 0 //TODO: diff between children and childNode?
+  ) {
+    console.log('OAW', {
+      children: elem.children.length,
+      childNodes: elem.childNodes.length,
+    });
+    elem.remove();
+  }
+
   if (elem.tagName === 'IMG') {
     // TODO: get correct relative URLs (l3pro.netlify.app/html_test)
     //console.log('IMG', elem.getAttribute('src'));
@@ -87,15 +101,11 @@ const cleanNode = (elem: Element, baseUrl: string) => {
 const checkNode = (root: Element, baseUrl: string) => {
   const tagName = root.tagName.toLowerCase();
   console.log('Checking', tagName);
-  // Forbidden node
-  if (forbiddenTags.indexOf(tagName) >= 0) {
-    console.log('ROOT is forbidden', root.outerHTML);
-    return '';
-  }
 
   // Empty node
   if (
     root.innerText === '' &&
+    allowedEmptyTags.indexOf(tagName) < 0 &&
     root.querySelectorAll(allowedEmptyTags.join(',')).length === 0
   ) {
     console.log('ROOT is empty', root.outerHTML);
@@ -116,7 +126,7 @@ const checkNode = (root: Element, baseUrl: string) => {
     content += checkNode(elem, baseUrl);
   });
 
-  return content; // TODO: newlines after each parsed element?
+  return content; // TODO: newlines after each parsed element? spaces after inline elements?
 };
 
 export const contentExtract = (
@@ -127,6 +137,9 @@ export const contentExtract = (
   try {
     const {document} = parseHTML(html);
     const baseUrl = getBaseUrl(url);
+    document.body
+      .querySelectorAll(forbiddenTags.join(','))
+      .forEach((node: Element) => node.remove());
     let content = checkNode(document.body, baseUrl);
     console.log('FInal content', htmlize(content));
     return htmlize(content, isDarkTheme);
