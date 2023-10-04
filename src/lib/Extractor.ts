@@ -14,6 +14,7 @@ const contentTags = [
   'h5',
   'h6',
   'p',
+  'blockquote',
   'ul',
   'a',
   'img',

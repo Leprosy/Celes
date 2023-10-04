@@ -1,14 +1,30 @@
-export const htmlize = (content: string, isDarkTheme = false) => `
+const theme = {
+  dark: {
+    bg: '#121212',
+    text: '#fff',
+    a: '#66f',
+    quote: '#222',
+  },
+  light: {
+    bg: '#fff',
+    text: '#000',
+    a: '#00f',
+    quote: '#ccc',
+  },
+};
+
+export const htmlize = (content: string, isDarkTheme = false) => {
+  const colors = isDarkTheme ? theme.dark : theme.light;
+  return `
 <!DOCTYPE html>
 <html>
   <head>
     <style>
-    body { font-size: 16px; color: ${
-      isDarkTheme ? '#fff' : '#000'
-    }; background-color: ${isDarkTheme ? '#000' : '#fff'} } 
-    p, li, span { line-height: 25px }
+    body { font-size: 16px; color: ${colors.text}; background-color: ${colors.bg} } 
+    p, li, blockquote, span { line-height: 25px }
+    blockquote { border-left: 5px ${colors.quote} solid; margin-left: 10px; padding-left: 20px }
     span, a { display: inline-block }
-    a { color: ${isDarkTheme ? '#66f' : '#00f'}}
+    a { color: ${colors.a}}
     li { margin-bottom: 5px }
     h1 { font-size: 22px }
     h2 { font-size: 20px }
@@ -23,6 +39,7 @@ export const htmlize = (content: string, isDarkTheme = false) => `
   </body>
 </html>
 `;
+};
 
 export const getStartTpl = (isDarkTheme = false) => {
   return htmlize(
